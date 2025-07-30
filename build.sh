@@ -1,7 +1,12 @@
 #!/bin/bash
+
 set -e
 
-TAG=${1:-dev}
 IMAGE_NAME="my-nginx-app"
+TAG="latest"
 
-docker build -t $DOCKER_USER/$TAG:$BUILD_NUMBER .
+echo "🔧 Building Docker image from Dockerfile..."
+docker build -t $IMAGE_NAME:$TAG .
+
+echo "✅ Docker image $IMAGE_NAME:$TAG built successfully."
+
