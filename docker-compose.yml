@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: my-nginx-app
+    ports:
+      - "3000:80"
+    restart: always
