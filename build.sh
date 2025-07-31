@@ -24,6 +24,6 @@ IMAGE_NAME="${DOCKER_USER}/${REPO}:${BUILD_NUMBER}"
 echo "🔧 Building Docker image: $IMAGE_NAME"
 
 # Build using Dockerfile (assumes it's in current dir)
-docker build -t "$IMAGE_NAME" .
+docker build -t "$IMAGE_NAME" ./build
 
 echo "✅ Built image: $IMAGE_NAME"
