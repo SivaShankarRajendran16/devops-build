@@ -12,7 +12,19 @@ pipeline {
       }
     }
 
-    stage('Docker Login, Build & Push') {
+    stage('Docker Login') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub-credentials',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+        }
+      }
+    }
+
+    stage('Build Docker Image') {
       steps {
         withCredentials([usernamePassword(
           credentialsId: 'dockerhub-credentials',
@@ -20,16 +32,27 @@ pipeline {
           passwordVariable: 'DOCKER_PASS'
         )]) {
           script {
-            // Docker login
-            sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-
-            // Determine repo name
             def repo = (env.BRANCH_NAME == "dev") ? "dev" : "prod"
             def versionTag = "${DOCKER_USER}/${repo}:${env.BUILD_NUMBER}"
-            def latestTag = "${DOCKER_USER}/${repo}:latest"
 
             echo "🔧 Building Docker Image: $versionTag"
             sh "BUILD_NUMBER=${env.BUILD_NUMBER} DOCKER_USER=${DOCKER_USER} ./build.sh ${env.BRANCH_NAME}"
+          }
+        }
+      }
+    }
+
+    stage('Push Docker Image') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub-credentials',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          script {
+            def repo = (env.BRANCH_NAME == "dev") ? "dev" : "prod"
+            def versionTag = "${DOCKER_USER}/${repo}:${env.BUILD_NUMBER}"
+            def latestTag = "${DOCKER_USER}/${repo}:latest"
 
             echo "🏷️ Tagging image as latest"
             sh "docker tag ${versionTag} ${latestTag}"
