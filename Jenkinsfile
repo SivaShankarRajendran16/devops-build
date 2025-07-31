@@ -2,24 +2,17 @@ pipeline {
   agent any
 
   environment {
-    APP_NAME = "my-nginx-app"
+    DOCKER_CREDENTIALS = credentials('dockerhub-creds')
+    DOCKER_USER = "${DOCKER_CREDENTIALS_USR}"
+    DOCKER_PASS = "${DOCKER_CREDENTIALS_PSW}"
   }
 
   stages {
-    stage('Checkout') {
+    stage('Docker Login') {
       steps {
-        checkout scm
-      }
-    }
-
-    stage('Login to DockerHub') {
-      steps {
-        withCredentials([usernamePassword(
-          credentialsId: 'dockerhub-credentials',
-          usernameVariable: 'DOCKER_USER',
-          passwordVariable: 'DOCKER_PASS'
-        )]) {
-          sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+        script {
+          echo "🔐 Logging into Docker Hub..."
+          sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
         }
       }
     }
@@ -29,7 +22,7 @@ pipeline {
         script {
           def repo = (env.BRANCH_NAME == "dev") ? "dev" : "prod"
           def image = "${DOCKER_USER}/${repo}:${env.BUILD_NUMBER}"
-          echo "🔧 Building Docker Image: $image"
+          echo "🔧 Building Docker Image: ${image}"
           sh "BUILD_NUMBER=${env.BUILD_NUMBER} DOCKER_USER=${DOCKER_USER} ./build.sh ${env.BRANCH_NAME}"
         }
       }
@@ -55,12 +48,9 @@ pipeline {
         sh './deploy.sh'
       }
     }
-  } 
+  }
 
   post {
-    success {
-      echo "✅ Successfully built and pushed for ${env.BRANCH_NAME}"
-    }
     failure {
       echo "❌ Build failed for ${env.BRANCH_NAME}"
     }
