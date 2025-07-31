@@ -2,8 +2,11 @@ version: '3.8'
 
 services:
   frontend:
-    build: ./build             
+    build:
+      context: ./build
+      dockerfile: Dockerfile
     container_name: frontend
     ports:
       - "3000:80"
     restart: always
+
