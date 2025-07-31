@@ -81,7 +81,7 @@ pipeline {
       echo "✅ Successfully built and pushed for ${env.BRANCH_NAME}"
     }
     failure {
-      echo "❌ Build failed for ${env.BRANCH_NAME}"
+      echo "❌ Builds failed for ${env.BRANCH_NAME}"
     }
   }
 }
