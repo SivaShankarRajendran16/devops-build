@@ -5,11 +5,8 @@ services:
     build:
       context: ./build
       dockerfile: Dockerfile
-<<<<<<< HEAD
-=======
       context: .              
       dockerfile: Dockerfile
->>>>>>> 0cd9e5d (Updated docker-compose.yml and added Dockerfile)
     container_name: frontend
     ports:
       - "3000:80"
