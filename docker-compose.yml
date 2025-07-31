@@ -3,13 +3,10 @@ version: '3.8'
 services:
   frontend:
     build:
-<<<<<<< HEAD
       context: ./build
       dockerfile: Dockerfile
-=======
-      context: .               # Use project root as context
-      dockerfile: Dockerfile   # Explicitly point to Dockerfile (optional if name is Dockerfile)
->>>>>>> c219e7f (Normalize line endings)
+      context: .              
+      dockerfile: Dockerfile
     container_name: frontend
     ports:
       - "3000:80"
