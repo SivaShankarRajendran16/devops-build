@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      context: .              
-      dockerfile: Dockerfile
     container_name: frontend
     ports:
       - "3000:80"
