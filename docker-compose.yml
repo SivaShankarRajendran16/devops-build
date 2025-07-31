@@ -3,9 +3,7 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: ./build
-      dockerfile: Dockerfile
-      context: .              
+      context: .
       dockerfile: Dockerfile
     container_name: frontend
     ports:
