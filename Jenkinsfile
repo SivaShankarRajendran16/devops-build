@@ -1,0 +1,35 @@
+pipeline {
+  agent any
+
+  environment {
+    APP_NAME = "my-nginx-app"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Login to DockerHub') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub-credentials',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+        }
+      }
+    }
+
+  post {
+    success {
+      echo "✅ Successfully built and pushed for ${env.BRANCH_NAME}"
+    }
+    failure {
+      echo "❌ Builds failed for ${env.BRANCH_NAME}"
+    }
+  }
+}
