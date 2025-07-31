@@ -25,6 +25,6 @@ echo "🔧 Building Docker image: $IMAGE_NAME"
 
 
 # Build using Dockerfile (assumes it's in current dir)
-docker build -t "$IMAGE_NAME" ./build
+docker build -t "$IMAGE_NAME" .
 
 echo "✅ Built image: $IMAGE_NAME"
