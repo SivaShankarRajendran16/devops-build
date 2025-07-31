@@ -21,7 +21,7 @@ fi
 # Final image name
 IMAGE_NAME="${DOCKER_USER}/${REPO}:${BUILD_NUMBER}"
 
-echo "🔧 Building Docker image: $IMAGE_NAME" ./build
+echo "🔧 Building Docker image: $IMAGE_NAME" .
 
 
 # Build using Dockerfile (assumes it's in current dir)
