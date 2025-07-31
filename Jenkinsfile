@@ -23,7 +23,6 @@ pipeline {
         }
       }
     }
-  }
 
     stage('Build Docker Image') {
       steps {
@@ -56,7 +55,7 @@ pipeline {
         sh './deploy.sh'
       }
     }
-  }
+  } 
 
   post {
     success {
