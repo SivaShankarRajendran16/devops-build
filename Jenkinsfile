@@ -12,7 +12,7 @@ pipeline {
       }
     }
 
-    stage('Login to DockerHub') {
+    stage('Docker Login') {
       steps {
         withCredentials([usernamePassword(
           credentialsId: 'dockerhub-credentials',
@@ -24,12 +24,64 @@ pipeline {
       }
     }
 
+    stage('Build Docker Image') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub-credentials',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          script {
+            def repo = (env.BRANCH_NAME == "dev") ? "dev" : "prod"
+            def versionTag = "${DOCKER_USER}/${repo}:${env.BUILD_NUMBER}"
+
+            echo "🔧 Building Docker Image: $versionTag"
+            sh "BUILD_NUMBER=${env.BUILD_NUMBER} DOCKER_USER=${DOCKER_USER} ./build.sh ${env.BRANCH_NAME}"
+          }
+        }
+      }
+    }
+
+    stage('Push Docker Image') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub-credentials',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          script {
+            def repo = (env.BRANCH_NAME == "dev") ? "dev" : "prod"
+            def versionTag = "${DOCKER_USER}/${repo}:${env.BUILD_NUMBER}"
+            def latestTag = "${DOCKER_USER}/${repo}:latest"
+
+            echo "🏷️ Tagging image as latest"
+            sh "docker tag ${versionTag} ${latestTag}"
+
+            echo "📤 Pushing Docker Images: $versionTag and $latestTag"
+            sh "docker push ${versionTag}"
+            sh "docker push ${latestTag}"
+          }
+        }
+      }
+    }
+
+    stage('Deploy the App') {
+      when {
+        branch 'main'
+      }
+      steps {
+        echo "🚀 Deploying app from main branch..."
+        sh './deploy.sh'
+      }
+    }
+  }
+
   post {
     success {
       echo "✅ Successfully built and pushed for ${env.BRANCH_NAME}"
     }
     failure {
-      echo "❌ Builds failed for ${env.BRANCH_NAME}"
+      echo "❌ Build failed for ${env.BRANCH_NAME}"
     }
   }
 }
